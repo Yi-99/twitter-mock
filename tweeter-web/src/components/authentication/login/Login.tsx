@@ -3,13 +3,15 @@ import "bootstrap/dist/css/bootstrap.css";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthenticationFormLayout from "../AuthenticationFormLayout";
-import useToastListener from "../../toaster/ToastListenerHook";
 import AuthenticationField from "../AuthenticationField";
 import UserInfoHook from "../../userInfo/UserInfoHook";
 import { AuthenticationPresenter, AuthenticationView } from "../../../presenters/AuthenticationPresenter";
+import useToastListener from "../../toaster/ToastListenerHook";
+import { LoginPresenter } from "../../../presenters/LoginPresenter";
 
 interface Props {
-	presenterGenerator: (view: AuthenticationView) => AuthenticationPresenter;
+	presenterGenerator: (view: AuthenticationView) => LoginPresenter;
+	originalUrl: string;
 }
 
 const Login = (props: Props) => {
@@ -17,6 +19,7 @@ const Login = (props: Props) => {
   const [password, setPassword] = useState("");
 	const [rememberMe, setRememberMe] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
+  const { displayErrorMessage } = useToastListener();
 
 	const navigate = useNavigate();
   const { updateUserInfo } = UserInfoHook();
@@ -26,16 +29,22 @@ const Login = (props: Props) => {
   };
 
 	const listener: AuthenticationView = {
-		
+		updateUserInfo: updateUserInfo,
+		navigate: navigate,
+		displayErrorMessage: displayErrorMessage
 	}
 
 	const [presenter] = useState(props.presenterGenerator(listener));
 
   const loginOnEnter = (event: React.KeyboardEvent<HTMLElement>) => {
     if (event.key == "Enter" && !checkSubmitButtonStatus()) {
-      presenter.doLogin(alias, password);
+      presenter.doLogin(alias, password, rememberMe, props.originalUrl);
     }
   };
+
+	const doLogin = async () => {
+		presenter.doLogin(alias, password, rememberMe, props.originalUrl);
+	}
 
 	const inputFieldGenerator = () => {
     return (

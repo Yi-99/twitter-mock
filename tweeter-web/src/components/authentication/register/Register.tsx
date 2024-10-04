@@ -7,10 +7,12 @@ import { Buffer } from "buffer";
 import useToastListener from "../../toaster/ToastListenerHook";
 import AuthenticationField from "../AuthenticationField";
 import UserInfoHook from "../../userInfo/UserInfoHook";
-import { AuthenticationPresenter, AuthenticationView } from "../../../presenters/AuthenticationPresenter";
+import { AuthenticationView } from "../../../presenters/AuthenticationPresenter";
+import { RegisterPresenter } from "../../../presenters/RegisterPresenter";
 
 interface Props {
-	presenterGenerator: (view: AuthenticationView) => AuthenticationPresenter;
+	presenterGenerator: (view: AuthenticationView) => RegisterPresenter;
+	originalUrl: string;
 }
 
 const Register = (props: Props) => {
@@ -44,6 +46,18 @@ const Register = (props: Props) => {
       doRegister();
     }
   };
+
+	const listener: AuthenticationView = {
+		updateUserInfo: updateUserInfo,
+		navigate: navigate,
+		displayErrorMessage: displayErrorMessage
+	}
+
+	const [presenter] = useState(props.presenterGenerator(listener));
+
+	const doRegister = async () => {
+		presenter.doRegister(firstName, lastName, alias, password, imageBytes, imageFileExtension, rememberMe);
+	}
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];

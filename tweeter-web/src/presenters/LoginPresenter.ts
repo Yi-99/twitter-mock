@@ -1,33 +1,32 @@
 import { AuthenticationPresenter, AuthenticationView } from "./AuthenticationPresenter";
 
-export interface LoginView {
-
+export interface LoginView extends AuthenticationView {
 }
 
 export class LoginPresenter extends AuthenticationPresenter {
-	public constructor(view: AuthenticationView) {
+	public constructor(view: LoginView) {
 		super(view);
 	}
 
-	public async doLogin(alias: string, password: string) {
+	public async doLogin(alias: string, password: string, rememberMe: boolean, originalUrl: string) {
     try {
-      setIsLoading(true);
+      this.isLoading = true;
 
       const [user, authToken] = await this.service.login(alias, password);
 
-      updateUserInfo(user, user, authToken, rememberMe);
+      this.view.updateUserInfo(user, user, authToken, rememberMe);
 
-      if (!!props.originalUrl) {
-        navigate(props.originalUrl);
+      if (!!originalUrl) {
+        this.view.navigate(originalUrl);
       } else {
-        navigate("/");
+        this.view.navigate("/");
       }
     } catch (error) {
       this.view.displayErrorMessage(
         `Failed to log user in because of exception: ${error}`
       );
     } finally {
-      setIsLoading(false);
+      this.isLoading = false;
     }
   };
 }

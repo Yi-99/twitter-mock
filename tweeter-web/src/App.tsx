@@ -10,9 +10,7 @@ import Login from "./components/authentication/login/Login";
 import Register from "./components/authentication/register/Register";
 import MainLayout from "./components/mainLayout/MainLayout";
 import Toaster from "./components/toaster/Toaster";
-import { AuthToken, FakeData, Status } from "tweeter-shared";
 import UserItemScroller from "./components/mainLayout/UserItemScroller";
-import StatusItemScroller from "./components/mainLayout/StatusItemScroller";
 import UserInfoHook from "./components/userInfo/UserInfoHook";
 import { FolloweePresenter } from './presenters/FolloweePresenter';
 import { FollowerPresenter } from './presenters/FollowerPresenter';
@@ -48,16 +46,6 @@ const App = () => {
 };
 
 const AuthenticatedRoutes = () => {
-  const loadMoreStoryItems = async (
-    authToken: AuthToken,
-    userAlias: string,
-    pageSize: number,
-    lastItem: Status | null
-  ): Promise<[Status[], boolean]> => {
-    // TODO: Replace with the result of calling server
-    return FakeData.instance.getPageOfStatuses(lastItem, pageSize);
-  };
-
   return (
     <Routes>
       <Route element={<MainLayout />}>
@@ -110,9 +98,9 @@ const UnauthenticatedRoutes = () => {
 
   return (
     <Routes>
-      <Route path="/login" element={<Login presenterGenerator={(view: AuthenticationView) => new LoginPresenter(view)} />} />
-      <Route path="/register" element={<Register presenterGenerator={(view: AuthenticationView) => new RegisterPresenter(view)} />} />
-      <Route path="*" element={<Login presenterGenerator={(view: AuthenticationView) => new LoginPresenter(view)} />} />
+      <Route path="/login" element={<Login presenterGenerator={(view: AuthenticationView) => new LoginPresenter(view)} originalUrl={location.pathname} />} />
+      <Route path="/register" element={<Register presenterGenerator={(view: AuthenticationView) => new RegisterPresenter(view)} originalUrl={location.pathname} />} />
+      <Route path="*" element={<Login presenterGenerator={(view: AuthenticationView) => new LoginPresenter(view)} originalUrl={location.pathname} />} />
     </Routes>
   );
 };
