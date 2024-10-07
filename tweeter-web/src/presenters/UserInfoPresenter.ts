@@ -9,7 +9,6 @@ export interface UserInfoView {
 	setFollowerCount: (followerCount: number) => void;
 	setFolloweeCount: (followeeCount: number) => void;
 	setIsLoading: (isLoading: boolean) => void;
-
 }
 
 export class UserInfoPresenter {

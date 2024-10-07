@@ -8,7 +8,7 @@ import useToastListener from "../../toaster/ToastListenerHook";
 import AuthenticationField from "../AuthenticationField";
 import UserInfoHook from "../../userInfo/UserInfoHook";
 import { AuthenticationView } from "../../../presenters/AuthenticationPresenter";
-import { RegisterPresenter } from "../../../presenters/RegisterPresenter";
+import { RegisterPresenter, RegisterView } from "../../../presenters/RegisterPresenter";
 
 interface Props {
 	presenterGenerator: (view: AuthenticationView) => RegisterPresenter;
@@ -24,7 +24,7 @@ const Register = (props: Props) => {
   const [imageUrl, setImageUrl] = useState<string>("");
   const [imageFileExtension, setImageFileExtension] = useState<string>("");
   const [rememberMe, setRememberMe] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  // const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
   const { updateUserInfo } = UserInfoHook();
@@ -47,58 +47,30 @@ const Register = (props: Props) => {
     }
   };
 
-	const listener: AuthenticationView = {
-		updateUserInfo: updateUserInfo,
-		navigate: navigate,
-		displayErrorMessage: displayErrorMessage
-	}
-
-	const [presenter] = useState(props.presenterGenerator(listener));
-
 	const doRegister = async () => {
 		presenter.doRegister(firstName, lastName, alias, password, imageBytes, imageFileExtension, rememberMe);
 	}
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    handleImageFile(file);
-  };
-
-  const handleImageFile = (file: File | undefined) => {
-    if (file) {
-      setImageUrl(URL.createObjectURL(file));
-
-      const reader = new FileReader();
-      reader.onload = (event: ProgressEvent<FileReader>) => {
-        const imageStringBase64 = event.target?.result as string;
-
-        // Remove unnecessary file metadata from the start of the string.
-        const imageStringBase64BufferContents =
-          imageStringBase64.split("base64,")[1];
-
-        const bytes: Uint8Array = Buffer.from(
-          imageStringBase64BufferContents,
-          "base64"
-        );
-
-        setImageBytes(bytes);
-      };
-      reader.readAsDataURL(file);
-
-      // Set image file extension (and move to a separate method)
-      const fileExtension = getFileExtension(file);
-      if (fileExtension) {
-        setImageFileExtension(fileExtension);
-      }
-    } else {
-      setImageUrl("");
-      setImageBytes(new Uint8Array());
-    }
+    presenter.handleImageFile(file);
   };
 
   const getFileExtension = (file: File): string | undefined => {
     return file.name.split(".").pop();
   };
+
+	const listener: RegisterView = {
+		updateUserInfo: updateUserInfo,
+		navigate: navigate,
+		displayErrorMessage: displayErrorMessage,
+		setImageUrl: setImageUrl,
+		setImageBytes: setImageBytes,
+		getFileExtension: getFileExtension,
+		setImageFileExtension: setImageFileExtension
+	}
+
+	const [presenter] = useState(props.presenterGenerator(listener));
 
   const inputFieldGenerator = () => {
     return (
@@ -163,7 +135,7 @@ const Register = (props: Props) => {
       switchAuthenticationMethodGenerator={switchAuthenticationMethodGenerator}
       setRememberMe={setRememberMe}
       submitButtonDisabled={checkSubmitButtonStatus}
-      isLoading={isLoading}
+      isLoading={presenter.isLoading}
       submit={doRegister}
     />
   );
