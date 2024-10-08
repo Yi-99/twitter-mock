@@ -11,7 +11,7 @@ import { AuthenticationView } from "../../../presenters/AuthenticationPresenter"
 import { RegisterPresenter, RegisterView } from "../../../presenters/RegisterPresenter";
 
 interface Props {
-	presenterGenerator: (view: AuthenticationView) => RegisterPresenter;
+	presenterGenerator: (view: RegisterView) => RegisterPresenter;
 	originalUrl: string;
 }
 
@@ -102,6 +102,7 @@ const Register = (props: Props) => {
         <AuthenticationField
           setAlias={setAlias}
           setPassword={setPassword} 
+					onEnter={registerOnEnter}
         />
         <div className="form-floating mb-3">
           <input

@@ -50,7 +50,8 @@ const Login = (props: Props) => {
     return (
       <AuthenticationField
         setAlias={setAlias}
-        setPassword={setPassword} 
+        setPassword={setPassword}
+				onEnter={loginOnEnter}
       />
     );
   };
