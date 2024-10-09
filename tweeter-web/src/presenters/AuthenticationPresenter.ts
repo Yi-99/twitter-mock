@@ -1,24 +1,20 @@
 import { AuthToken, User } from "tweeter-shared";
 import { UserService } from "../model/service/UserService";
+import { Presenter, View } from "./Presenter";
+import { PagedItemView } from "./PagedItemPresenter";
 
-export interface AuthenticationView {
+export interface AuthenticationView extends View {
 	updateUserInfo: (user: User, displayedUser: User, authToken: AuthToken, rememberMe: boolean) => void;
-	displayErrorMessage: (message: string) => void;
 	navigate: (originalUrl: string) => void;
 }
 
-export abstract class AuthenticationPresenter {
-	private _view: AuthenticationView;
+export abstract class AuthenticationPresenter extends Presenter<AuthenticationView> {
 	private _service: UserService;
 	private _isLoading: boolean = false;
 
 	public constructor(view: AuthenticationView) {
-		this._view = view;
+		super(view);
 		this._service = new UserService();
-	}
-
-	public get view() {
-		return this._view;
 	}
 
 	public get service(): UserService {

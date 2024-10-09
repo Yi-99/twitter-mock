@@ -4,10 +4,6 @@ export interface LoginView extends AuthenticationView {
 }
 
 export class LoginPresenter extends AuthenticationPresenter {
-	public constructor(view: LoginView) {
-		super(view);
-	}
-
 	public async doLogin(alias: string, password: string, rememberMe: boolean, originalUrl: string) {
     try {
       this.isLoading = true;
