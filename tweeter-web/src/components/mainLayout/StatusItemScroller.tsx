@@ -1,15 +1,16 @@
 import { useEffect, useState } from "react";
 import useToastListener from "../toaster/ToastListenerHook";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { AuthToken, Status } from "tweeter-shared";
+import { Status } from "tweeter-shared";
 import StatusItem from "../statusItem/StatusItem";
 import UserInfoHook from "../userInfo/UserInfoHook";
-import { StatusItemPresenter, StatusItemView } from "../../presenters/StatusItemPresenter";
+import { StatusItemPresenter } from "../../presenters/StatusItemPresenter";
+import { PagedItemView } from "../../presenters/PagedItemPresenter";
 
 export const PAGE_SIZE = 10;
 
 interface Props {
-	presenterGenerator: (view: StatusItemView) => StatusItemPresenter;
+	presenterGenerator: (view: PagedItemView<Status>) => StatusItemPresenter;
 }
 
 const StatusItemScroller = (props: Props) => {
@@ -53,7 +54,7 @@ const StatusItemScroller = (props: Props) => {
     setChangedDisplayedUser(true);
   }
 
-	const listener: StatusItemView = {
+	const listener: PagedItemView<Status> = {
 		addItems: (newItems: Status[]) =>
 			setNewItems(newItems),
 		displayErrorMessage: displayErrorMessage
@@ -62,7 +63,7 @@ const StatusItemScroller = (props: Props) => {
 	const [presenter] = useState(props.presenterGenerator(listener));
 
   const loadMoreItems = async () => {
-		presenter.loadMoreItems(authToken!, displayedUser!.alias);
+		presenter.loadMoreItems(authToken!, displayedUser!);
 		setChangedDisplayedUser(false);
   };
 
@@ -72,7 +73,7 @@ const StatusItemScroller = (props: Props) => {
         className="pr-0 mr-0"
         dataLength={items.length}
         next={loadMoreItems}
-        hasMore={hasMoreItems}
+        hasMore={presenter.hasMoreItems}
         loader={<h4>Loading...</h4>}
       >
         {items.map((item, index) => (

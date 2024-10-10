@@ -1,15 +1,16 @@
-import { AuthToken, User } from "tweeter-shared";
+import { User } from "tweeter-shared";
 import { useState, useEffect } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import UserItem from "../userItem/UserItem";
 import useToastListener from "../toaster/ToastListenerHook";
 import UserInfoHook from "../userInfo/UserInfoHook";
-import { UserItemPresenter, UserItemView } from '../../presenters/UserItemPresenter';
+import { UserItemPresenter } from '../../presenters/UserItemPresenter';
+import { PagedItemView } from "../../presenters/PagedItemPresenter";
 
 export const PAGE_SIZE = 10;
 
 interface Props {
-	presenterGenerator: (view: UserItemView) => UserItemPresenter;
+	presenterGenerator: (view: PagedItemView<User>) => UserItemPresenter;
 }
 
 const UserItemScroller = (props: Props) => {
@@ -47,7 +48,7 @@ const UserItemScroller = (props: Props) => {
 		presenter.reset();
   }
 
-	const listener: UserItemView = {
+	const listener: PagedItemView<User> = {
 		addItems: (newItems: User[]) =>
 			setNewItems(newItems),
 		displayErrorMessage: displayErrorMessage
@@ -56,7 +57,7 @@ const UserItemScroller = (props: Props) => {
 	const [presenter] = useState(props.presenterGenerator(listener));
 
 	const loadMoreItems = async () => {
-		presenter.loadMoreItems(authToken!, displayedUser!.alias);
+		presenter.loadMoreItems(authToken!, displayedUser!);
 		setChangedDisplayedUser(false);
   };
 

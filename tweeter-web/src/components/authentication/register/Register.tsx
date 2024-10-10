@@ -3,11 +3,9 @@ import "bootstrap/dist/css/bootstrap.css";
 import { ChangeEvent, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthenticationFormLayout from "../AuthenticationFormLayout";
-import { Buffer } from "buffer";
 import useToastListener from "../../toaster/ToastListenerHook";
 import AuthenticationField from "../AuthenticationField";
 import UserInfoHook from "../../userInfo/UserInfoHook";
-import { AuthenticationView } from "../../../presenters/AuthenticationPresenter";
 import { RegisterPresenter, RegisterView } from "../../../presenters/RegisterPresenter";
 
 interface Props {
@@ -24,7 +22,6 @@ const Register = (props: Props) => {
   const [imageUrl, setImageUrl] = useState<string>("");
   const [imageFileExtension, setImageFileExtension] = useState<string>("");
   const [rememberMe, setRememberMe] = useState(false);
-  // const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
   const { updateUserInfo } = UserInfoHook();

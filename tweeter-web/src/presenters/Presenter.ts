@@ -8,7 +8,7 @@ export interface MessageView extends View {
 }
 
 export class Presenter<V extends View> {
-	private _view: V;
+	protected _view: V;
 
 	protected constructor(view: V) {
 		this._view = view;

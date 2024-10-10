@@ -9,6 +9,14 @@ export interface RegisterView extends AuthenticationView {
 }
 
 export class RegisterPresenter extends AuthenticationPresenter {
+	constructor(view: RegisterView) {
+		super(view);
+	}
+	
+	protected get view(): RegisterView {
+		return this._view as RegisterView;
+	}
+
 	public async doRegister(
 		firstName: string, 
 		lastName: string, 
