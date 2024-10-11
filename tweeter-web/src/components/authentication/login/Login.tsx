@@ -18,7 +18,6 @@ const Login = (props: Props) => {
   const [alias, setAlias] = useState("");
   const [password, setPassword] = useState("");
 	const [rememberMe, setRememberMe] = useState(false);
-	const [isLoading, setIsLoading] = useState(false);
   const { displayErrorMessage } = useToastListener();
 
 	const navigate = useNavigate();
@@ -73,7 +72,7 @@ const Login = (props: Props) => {
       switchAuthenticationMethodGenerator={switchAuthenticationMethodGenerator}
       setRememberMe={setRememberMe}
       submitButtonDisabled={checkSubmitButtonStatus}
-      isLoading={isLoading}
+      isLoading={presenter.isLoading}
       submit={doLogin}
     />
   );

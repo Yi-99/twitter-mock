@@ -1,7 +1,6 @@
 import { AuthToken, User } from "tweeter-shared";
 import { UserService } from "../model/service/UserService";
 import { Presenter, View } from "./Presenter";
-import { PagedItemView } from "./PagedItemPresenter";
 
 export interface AuthenticationView extends View {
 	updateUserInfo: (user: User, displayedUser: User, authToken: AuthToken, rememberMe: boolean) => void;
@@ -27,5 +26,13 @@ export abstract class AuthenticationPresenter extends Presenter<AuthenticationVi
 
 	public set isLoading(value: boolean) {
 		this._isLoading = value;
+	}
+
+	public navigate(originalUrl: string): void {
+		if (!!originalUrl) {
+			this.view.navigate(originalUrl);
+		} else {
+			this.view.navigate("/");
+		}
 	}
 }

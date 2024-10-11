@@ -9,6 +9,10 @@ export interface RegisterView extends AuthenticationView {
 }
 
 export class RegisterPresenter extends AuthenticationPresenter {
+	public doAuthenticate(operation: () => Promise<void>, originalUrl: string): Promise<void> {
+		throw new Error("Method not implemented.");
+	}
+
 	constructor(view: RegisterView) {
 		super(view);
 	}
@@ -26,7 +30,7 @@ export class RegisterPresenter extends AuthenticationPresenter {
 		imageFileExtension: string,
 		rememberMe: boolean
 	) {
-    try {
+		this.doFailureReportingOp(async () => {
       this.isLoading = true;
 
       const [user, authToken] = await this.service.register(
@@ -39,14 +43,9 @@ export class RegisterPresenter extends AuthenticationPresenter {
       );
 
       this.view.updateUserInfo(user, user, authToken, rememberMe);
-      this.view.navigate("/");
-    } catch (error) {
-      this.view.displayErrorMessage(
-        `Failed to register user because of exception: ${error}`
-      );
-    } finally {
-      this.isLoading = false;
-    }
+			this.view.navigate("");
+		}, "register user");
+		this.isLoading = false;
   };
 
 	public handleImageFile (file: File | undefined) {
