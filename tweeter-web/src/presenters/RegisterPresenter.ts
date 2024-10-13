@@ -9,10 +9,6 @@ export interface RegisterView extends AuthenticationView {
 }
 
 export class RegisterPresenter extends AuthenticationPresenter {
-	public doAuthenticate(operation: () => Promise<void>, originalUrl: string): Promise<void> {
-		throw new Error("Method not implemented.");
-	}
-
 	constructor(view: RegisterView) {
 		super(view);
 	}
