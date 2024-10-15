@@ -7,22 +7,27 @@ export interface AppNavbarView extends MessageView {
 }
 
 export class AppNavbarPresenter extends Presenter<AppNavbarView> {
-	private _service: UserService;
+	private _service: UserService | null = null;
 
 	public constructor(view: AppNavbarView) {
 		super(view);
-		this._service = new UserService();
+		this._service = this.userService;
 	}
 
-	public get service(): UserService {
+	public get service(): UserService | null {
 		return this._service;
 	}
 
-	public logOut(authToken: AuthToken): void {
+	public get userService(): UserService {
+		if (this.service === null) return new UserService();
+		else return this.service;
+	}
+
+	public async logOut(authToken: AuthToken): Promise<void> {
 		this.view.displayInfoMessage("Logging Out...", 0);
 
 		this.doFailureReportingOp(async () => {
-      await this.service.logout(authToken!);
+      await this.userService.logout(authToken!);
 
       this.view.clearLastInfoMessage();
       this.view.clearUserInfo();

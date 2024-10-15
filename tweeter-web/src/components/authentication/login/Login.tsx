@@ -5,11 +5,12 @@ import { Link, useNavigate } from "react-router-dom";
 import AuthenticationFormLayout from "../AuthenticationFormLayout";
 import AuthenticationField from "../AuthenticationField";
 import UserInfoHook from "../../userInfo/UserInfoHook";
-import { AuthenticationPresenter, AuthenticationView } from "../../../presenters/AuthenticationPresenter";
+import { AuthenticationView } from "../../../presenters/AuthenticationPresenter";
 import useToastListener from "../../toaster/ToastListenerHook";
 import { LoginPresenter } from "../../../presenters/LoginPresenter";
 
 interface Props {
+	presenter?: LoginPresenter;
 	presenterGenerator: (view: AuthenticationView) => LoginPresenter;
 	originalUrl: string;
 }
@@ -33,7 +34,7 @@ const Login = (props: Props) => {
 		displayErrorMessage: displayErrorMessage
 	}
 
-	const [presenter] = useState(props.presenterGenerator(listener));
+	const [presenter] = useState(props.presenter ?? new LoginPresenter(listener));
 
   const loginOnEnter = (event: React.KeyboardEvent<HTMLElement>) => {
     if (event.key == "Enter" && !checkSubmitButtonStatus()) {
@@ -42,7 +43,7 @@ const Login = (props: Props) => {
   };
 
 	const doLogin = async () => {
-		presenter.doLogin(alias, password, rememberMe, props.originalUrl);
+		await presenter.doLogin(alias, password, rememberMe, props.originalUrl);
 	}
 
 	const inputFieldGenerator = () => {

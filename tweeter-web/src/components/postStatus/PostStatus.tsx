@@ -6,6 +6,7 @@ import { PostStatusPresenter, PostStatusView } from "../../presenters/PostStatus
 
 interface Props {
 	presenterGenerator: (view: PostStatusView) => PostStatusPresenter;
+	presenter?: PostStatusPresenter;
 }
 
 const PostStatus = (props: Props) => {
@@ -15,6 +16,14 @@ const PostStatus = (props: Props) => {
   const { currentUser, authToken } = UserInfoHook();
   const [post, setPost] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+	const submitPost = async (event: React.MouseEvent) => {
+		presenter.submitPost(event, post, currentUser, authToken);
+	}
+
+  const clearPost = (event: React.MouseEvent) => {
+    presenter.clearPost(event);
+  };
 
 	const listener: PostStatusView = {
 		setIsLoading: setIsLoading,
@@ -26,15 +35,6 @@ const PostStatus = (props: Props) => {
 
 	const [presenter] = useState(props.presenterGenerator(listener));
 
-	const submitPost = async (event: React.MouseEvent) => {
-		presenter.submitPost(event, post, currentUser, authToken);
-	}
-
-  const clearPost = (event: React.MouseEvent) => {
-    event.preventDefault();
-    setPost("");
-  };
-
   const checkButtonStatus: () => boolean = () => {
     return !post.trim() || !authToken || !currentUser;
   };
@@ -44,6 +44,7 @@ const PostStatus = (props: Props) => {
       <form>
         <div className="form-group mb-3">
           <textarea
+						aria-label="postStatusField"
             className="form-control"
             id="postStatusTextArea"
             rows={10}
@@ -57,6 +58,7 @@ const PostStatus = (props: Props) => {
         <div className="form-group">
           <button
             id="postStatusButton"
+						aria-label="post"
             className="btn btn-md btn-primary me-1"
             type="button"
             disabled={checkButtonStatus()}
@@ -75,6 +77,7 @@ const PostStatus = (props: Props) => {
           </button>
           <button
             id="clearStatusButton"
+						aria-label="clear"
             className="btn btn-md btn-secondary"
             type="button"
             disabled={checkButtonStatus()}
