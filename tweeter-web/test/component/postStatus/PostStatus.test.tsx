@@ -51,7 +51,6 @@ describe("Post Status", () => {
     expect(clearStatusButton).toBeDisabled();
 
     await user.type(postTextBox, "a");
-    console.log(postTextBox.innerHTML.length);
 
     expect(postStatusButton).toBeEnabled();
     expect(clearStatusButton).toBeEnabled();

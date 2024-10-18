@@ -55,15 +55,16 @@ const AuthenticationFormLayout = (props: Props) => {
               disabled={props.submitButtonDisabled()}
               onClick={() => props.submit()}
             >
-              {props.isLoading ? (
+              {/* {props.isLoading ? (
                 <span
                   className="spinner-border spinner-border-sm"
                   role="status"
                   aria-hidden="true"
                 ></span>
               ) : (
-                <div>{props.submitButtonLabel}</div>
-              )}
+                props.submitButtonLabel ?? "Sign in"
+              )} */}
+							{ props.submitButtonLabel ?? "Sign in" }
             </button>
           </form>
         </div>

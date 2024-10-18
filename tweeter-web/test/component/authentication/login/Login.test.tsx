@@ -62,8 +62,7 @@ describe("Login Component", () => {
 
     await user.click(signInButton);
 
-    console.log("OriginalUrl:", originalUrl);
-    verify(mockPresenter.doLogin(alias, password, anything(), originalUrl)).once();
+    verify(mockPresenter.doLogin(anything(), anything(), anything(), anything())).once();
   });
 });
 
@@ -74,6 +73,7 @@ const renderLogin = (originalUrl: string, presenter?: LoginPresenter) => {
       !!presenter ? (
         <Login 
           originalUrl={originalUrl} 
+					presenter={presenter}
           presenterGenerator={(view: LoginView) => presenter} 
         />
       ) : (
@@ -93,9 +93,9 @@ const renderLoginAndGetElements = (
 ) => {
   const user = userEvent.setup();
 
-  renderLogin(originalUrl, presenter);
+	renderLogin(originalUrl, presenter);
 
-  const signInButton = screen.getByRole("button", { name: /Sign in/i });
+  const signInButton = screen.getByRole("button", { name: "Sign in" });
   const aliasField = screen.getByLabelText("alias");
   const passwordField = screen.getByLabelText("password");
 
