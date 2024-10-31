@@ -62,7 +62,7 @@ describe("Login Component", () => {
 
     await user.click(signInButton);
 
-    verify(mockPresenter.doLogin(anything(), anything(), anything(), anything())).once();
+    verify(mockPresenter.doLogin(alias, password, false, originalUrl)).once();
   });
 });
 
