@@ -27,9 +27,15 @@ do
             --function-name  "$function_name" \
             --s3-bucket $BUCKET \
             --s3-key code/lambdalist.zip \
-            1>>/dev/null \
-            &
+            1>>/dev/null
         echo lambda $i, "$function_name", updating from s3
+
+				# # Update the handler
+				# aws lambda update-function-configuration \
+				# 		--function-name "$function_name" \
+				# 		--handler "$handler" \
+				# 		1>>/dev/null
+				# echo lambda $i, "$function_name", handler updated to "$handler"
     else
         # Lambda doesn't exist, create it
         aws lambda create-function \
@@ -38,8 +44,7 @@ do
             --role $LAMBDA_ROLE \
             --handler "$handler" \
             --code S3Bucket=$BUCKET,S3Key=code/lambdalist.zip \
-            1>>/dev/null \
-            &
+            1>>/dev/null
         echo lambda $i, "$function_name", created from s3
     fi
     pids[${i-1}]=$!
@@ -48,7 +53,7 @@ done
 
 # Wait for each process to finish
 for pid in "${pids[@]}"; do
-    wait "$pid"
+	wait "$pid"
 done
 
 echo -e '\nLambda functions updated or created.'
