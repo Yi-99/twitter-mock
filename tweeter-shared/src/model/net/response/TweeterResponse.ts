@@ -1,4 +1,4 @@
 export interface TweeterResponse {
 	readonly success: boolean;
-	readonly message: string | null;
+	readonly message: string | undefined | null;
 }

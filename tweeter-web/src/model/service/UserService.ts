@@ -1,19 +1,21 @@
 import { Buffer } from "buffer";
-import { AuthToken, FakeData, User } from "tweeter-shared";
+import { 
+	AuthToken,
+	FakeData, 
+	User, 
+	LoginRequest, 
+	LogoutRequest, 
+	GetUserRequest, 
+	RegisterRequest
+} from "tweeter-shared";
+import { Service } from "./Service";
 
-export class UserService {
+export class UserService extends Service {
 	public async login(
     alias: string,
     password: string
   ): Promise<[User, AuthToken]> {
-    // TODO: Replace with the result of calling the server
-    const user = FakeData.instance.firstUser;
-
-    if (user === null) {
-      throw new Error("Invalid alias or password");
-    }
-
-    return [user, FakeData.instance.authToken];
+		return await this.sf.login({alias, password} as LoginRequest);
   };
 
 	public async register (
@@ -35,7 +37,14 @@ export class UserService {
       throw new Error("Invalid registration");
     }
 
-    return [user, FakeData.instance.authToken];
+    return await this.sf.register({
+			firstName,
+			lastName,
+			alias,
+			password,
+			userImageBytes,
+			imageFileExtension
+		} as RegisterRequest);
   };
 
 	public async getUser (
@@ -43,11 +52,11 @@ export class UserService {
     alias: string
   ): Promise<User | null> {
     // TODO: Replace with the result of calling server
-    return FakeData.instance.findUserByAlias(alias);
+    return await this.sf.getUser({authToken, userAlias: alias} as GetUserRequest);
   };
 
 	public async logout (authToken: AuthToken): Promise<void> {
     // Pause so we can see the logging out message. Delete when the call to the server is implemented.
-    await new Promise((res) => setTimeout(res, 1000));
+    return await this.sf.logout({authToken} as LogoutRequest);
   };
 }

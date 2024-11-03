@@ -52,6 +52,7 @@ export abstract class PagedItemPresenter<T, U> extends Presenter<PagedItemView<T
 				)
 	
 				this.hasMoreItems = hasMore;
+				console.log(this.hasMoreItems);
 				this.lastItem = newItems[newItems.length - 1];
 				this.view.addItems(newItems);
 			}, this.getItemDescription());
