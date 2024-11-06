@@ -278,17 +278,17 @@ export class Status {
 
 	public get dto(): StatusDto {
 		return {
-			post: this._post,
-			user: this._user,
-			timestamp: this._timestamp
+			_post: this._post,
+			_user: this._user,
+			_timestamp: this._timestamp
 		}
 	}
 
 	public static fromDto(dto: StatusDto | null): Status | null {
 		return dto === null ? null : new Status(
-			dto.post,
-			dto.user,
-			dto.timestamp
+			dto._post,
+			dto._user,
+			dto._timestamp
 		);
 	}
 }

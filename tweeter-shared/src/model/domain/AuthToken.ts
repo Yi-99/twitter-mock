@@ -66,15 +66,15 @@ export class AuthToken {
 
 	public get dto(): AuthTokenDto {
 		return {
-			token: this._token,
-			timestamp: this._timestamp
+			_token: this._token,
+			_timestamp: this._timestamp
 		}
 	}
 
 	public static fromDto(dto: AuthTokenDto | null): AuthToken | null {
 		return dto === null ? null : new AuthToken(
-			dto.token,
-			dto.timestamp
+			dto._token,
+			dto._timestamp
 		);
 	}
 }

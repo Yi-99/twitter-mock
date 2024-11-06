@@ -15,7 +15,17 @@ export class UserService extends Service {
     alias: string,
     password: string
   ): Promise<[User, AuthToken]> {
-		return await this.sf.login({alias, password} as LoginRequest);
+		const [user, authToken] = await this.sf.login({alias, password} as LoginRequest);
+
+		console.log("In login:", user, authToken);
+
+		if (user === null) {
+			throw new Error("Invalid alias or password");
+		} else if (authToken === null) {
+			throw new Error("Invalid Auth Token");
+		}
+
+		return [user, authToken];
   };
 
 	public async register (
@@ -30,7 +40,6 @@ export class UserService extends Service {
     const imageStringBase64: string =
       Buffer.from(userImageBytes).toString("base64");
 
-    // TODO: Replace with the result of calling the server
     const user = FakeData.instance.firstUser;
 
     if (user === null) {
@@ -51,8 +60,8 @@ export class UserService extends Service {
     authToken: AuthToken,
     alias: string
   ): Promise<User | null> {
-    // TODO: Replace with the result of calling server
-    return await this.sf.getUser({authToken, userAlias: alias} as GetUserRequest);
+		console.log("Get User:", authToken, alias);
+    return await this.sf.getUser({authToken: authToken.dto, userAlias: alias} as GetUserRequest);
   };
 
 	public async logout (authToken: AuthToken): Promise<void> {

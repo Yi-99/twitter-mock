@@ -1,6 +1,6 @@
 export interface UserDto {
-	readonly firstName: string,
-	readonly lastName: string,
-	readonly alias: string,
-	readonly imageUrl: string
+	readonly _firstName: string,
+	readonly _lastName: string,
+	readonly _alias: string,
+	readonly _imageUrl: string
 }

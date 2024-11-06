@@ -34,8 +34,8 @@ export class FollowService {
 		const user = User.fromDto(userToUnfollow);
 
 		if (token !== null && user !== null) {
-			const followerCount = await this.getFollowerCount(token, user);
-			const followeeCount = await this.getFolloweeCount(token, user);
+			const followerCount = await this.getFollowerCount(authToken, userToUnfollow);
+			const followeeCount = await this.getFolloweeCount(authToken, userToUnfollow);
 			return [followerCount, followeeCount];
 		}
 
@@ -54,8 +54,8 @@ export class FollowService {
 		const user = User.fromDto(userToFollow);
 
 		if (token !== null && user !== null) {
-			const followerCount = await this.getFollowerCount(token, user);
-			const followeeCount = await this.getFolloweeCount(token, user);
+			const followerCount = await this.getFollowerCount(authToken, userToFollow);
+			const followeeCount = await this.getFolloweeCount(authToken, userToFollow);
 			return [followerCount, followeeCount];
 		}
 
@@ -76,7 +76,7 @@ export class FollowService {
     user: UserDto
   ): Promise<number> {
     // TODO: Replace with the result of calling server
-    return FakeData.instance.getFolloweeCount(user.alias);
+    return FakeData.instance.getFolloweeCount(user._alias);
   };
 
   public async getFollowerCount (
@@ -84,7 +84,7 @@ export class FollowService {
     user: UserDto
   ): Promise<number> {
     // TODO: Replace with the result of calling server
-    return FakeData.instance.getFollowerCount(user.alias);
+    return FakeData.instance.getFollowerCount(user._alias);
   };
 
   private async getFakeData(lastItem: UserDto | null, pageSize: number, userAlias: string): Promise<[UserDto[], boolean]> {

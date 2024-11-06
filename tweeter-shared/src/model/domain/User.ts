@@ -83,19 +83,19 @@ export class User {
 
 	public get dto(): UserDto {
 		return {
-			firstName: this.firstName,
-			lastName: this.lastName,
-			alias: this.alias,
-			imageUrl: this.imageUrl
+			_firstName: this.firstName,
+			_lastName: this.lastName,
+			_alias: this.alias,
+			_imageUrl: this.imageUrl
 		};
 	}
 
 	public static fromDto(dto: UserDto | null): User | null {
 		return dto === null ? null : new User(
-			dto.firstName,
-			dto.lastName,
-			dto.alias,
-			dto.imageUrl
+			dto._firstName,
+			dto._lastName,
+			dto._alias,
+			dto._imageUrl
 		);
 	}
 }

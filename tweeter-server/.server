@@ -16,4 +16,4 @@ postStatus | lambda/postStatus/PostStatusLambda.handler
 follow | lambda/follow/FollowLambda.handler
 unfollow | lambda/follow/UnfollowLambda.handler
 '
-LAMBDALAYER_ARN=arn:aws:lambda:us-east-1:682033466141:layer:cs340f2024:5
+LAMBDALAYER_ARN=arn:aws:lambda:us-east-1:682033466141:layer:cs340f2024:6
