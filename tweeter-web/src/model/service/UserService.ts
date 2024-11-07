@@ -17,8 +17,6 @@ export class UserService extends Service {
   ): Promise<[User, AuthToken]> {
 		const [user, authToken] = await this.sf.login({alias, password} as LoginRequest);
 
-		console.log("In login:", user, authToken);
-
 		if (user === null) {
 			throw new Error("Invalid alias or password");
 		} else if (authToken === null) {
@@ -51,8 +49,7 @@ export class UserService extends Service {
 			lastName,
 			alias,
 			password,
-			userImageBytes,
-			imageFileExtension
+			imageStringBase64,
 		} as RegisterRequest);
   };
 

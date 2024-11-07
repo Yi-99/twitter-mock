@@ -3,6 +3,5 @@ export interface RegisterRequest {
 	readonly lastName: string;
 	readonly alias: string;
 	readonly password: string;
-	readonly userImageBytes: Uint8Array;
-	readonly imageFileExtension: string;
+	readonly imageStringBase64: string;
 }

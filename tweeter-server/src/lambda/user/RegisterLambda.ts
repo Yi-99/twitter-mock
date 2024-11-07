@@ -8,8 +8,7 @@ export const handler = async (req: RegisterRequest): Promise<RegisterResponse> =
 		req.lastName, 
 		req.alias, 
 		req.password, 
-		req.userImageBytes,
-		req.imageFileExtension
+		req.imageStringBase64,
 	);
 	
 	return {

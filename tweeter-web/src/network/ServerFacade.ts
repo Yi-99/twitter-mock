@@ -193,10 +193,8 @@ export class ServerFacade {
 
 		const items: Status[] = 
 			response.success && response.items 
-			? response.items.map((dto) => { console.log("Status:", Status.fromDto(dto)); return Status.fromDto(dto)}).filter((item): item is Status => item !== null) 
+			? response.items.map((dto) => { return Status.fromDto(dto)}).filter((item): item is Status => item !== null) 
 			: [];
-
-		console.log("Items:", items);
 
 		if (response.success) {
 			if (items == null) {
@@ -243,12 +241,8 @@ export class ServerFacade {
 			LoginResponse
 		>(request, "/login");
 
-		console.log("response:", response);
-
 		const user: UserDto | null = response.user;
 		const authToken: AuthTokenDto | null = response.authToken;
-		console.log("User AuthToken: ", user, authToken);
-		console.log("FromDto:", User.fromDto(user) as User, AuthToken.fromDto(authToken) as AuthToken);
 
 		if (response.success) {
 			if (user == null) {
@@ -312,10 +306,8 @@ export class ServerFacade {
 		>(request, "/user");
 
 		const user: UserDto | null = response.user;
-		console.log("GetUser:", user);
 
 		if (response.success && user) {
-			console.log("Return:", User.fromDto(user));
 			return User.fromDto(user) as User;
 		} else {
 			console.error(response);

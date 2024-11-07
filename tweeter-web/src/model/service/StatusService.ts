@@ -8,9 +8,7 @@ export class StatusService extends Service {
     pageSize: number,
     lastItem: Status | null
   ): Promise<[Status[], boolean]> {
-		const feeds = await this.sf.getMoreFeeds({token: authToken.token, userAlias, pageSize, lastItem} as PagedStatusItemRequest);
-		console.log("In loadMoreFeedItems:", feeds);
-		return [feeds[0], feeds[1]];
+		return await this.sf.getMoreFeeds({token: authToken.token, userAlias, pageSize, lastItem} as PagedStatusItemRequest);
   };
 
 	public async loadMoreStoryItems (

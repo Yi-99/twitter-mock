@@ -29,7 +29,7 @@ export class ClientCommunicator {
 			JSON.stringify(req)
     );
     
-    console.log(`Fetching '${url}' with params '${JSON.stringify(params)}'`);
+    // console.log(`Fetching '${url}' with params '${JSON.stringify(params)}'`);
 
     try {
       const resp: Response = await fetch(url, params);
