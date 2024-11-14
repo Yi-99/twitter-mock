@@ -8,8 +8,8 @@ export class FollowService extends Service {
     pageSize: number,
     lastItem: User | null
   ): Promise<[User[], boolean]> {
-		const [users, hasMore] = await this.sf.getMoreFollowers({token: authToken.token, userAlias, pageSize, lastItem});
-		users.forEach((user) => User.fromDto(user));
+		const [users, hasMore] = await this.sf.getMoreFollowers({token: authToken.token, userAlias, pageSize, lastItem: lastItem!.dto});
+		users.forEach((user) => user);
 		return [users, hasMore];
 		// return this.getFakeData(lastItem, pageSize, userAlias);
   };
@@ -20,8 +20,8 @@ export class FollowService extends Service {
     pageSize: number,
     lastItem: User | null
   ): Promise<[User[], boolean]> {
-		const [users, hasMore] = await this.sf.getMoreFollowees({token: authToken.token, userAlias, pageSize, lastItem});
-		users.forEach((user) => User.fromDto(user));
+		const [users, hasMore] = await this.sf.getMoreFollowees({token: authToken.token, userAlias, pageSize, lastItem: lastItem!.dto});
+		users.forEach((user) => user);
 		return [users, hasMore];
 		// return this.getFakeData(lastItem, pageSize, userAlias);
   };
@@ -30,7 +30,7 @@ export class FollowService extends Service {
     authToken: AuthToken,
     userToUnfollow: User
   ): Promise<[followerCount: number, followeeCount: number]> {
-		return await this.sf.unfollow({authToken, userToUnfollow});
+		return await this.sf.unfollow({authToken: authToken.dto, userToUnfollow: userToUnfollow.dto});
     // // Pause so we can see the unfollow message. Remove when connected to the server
     // await new Promise((f) => setTimeout(f, 2000));
 
@@ -55,7 +55,7 @@ export class FollowService extends Service {
     // const followeeCount = await this.getFolloweeCount(authToken, userToFollow);
 
     // return [followerCount, followeeCount];
-		return await this.sf.follow({authToken, userToFollow});
+		return await this.sf.follow({authToken: authToken.dto, userToFollow: userToFollow.dto});
   };
 
 	public async getIsFollowerStatus (
@@ -63,7 +63,7 @@ export class FollowService extends Service {
     user: User,
     selectedUser: User
   ): Promise<boolean> {
-		return await this.sf.getIsFollowerStatus({authToken, user, selectedUser});
+		return await this.sf.getIsFollowerStatus({authToken: authToken.dto, user: user.dto, selectedUser: selectedUser.dto});
     // return FakeData.instance.isFollower();
   };
 
@@ -71,7 +71,7 @@ export class FollowService extends Service {
     authToken: AuthToken,
     user: User
   ): Promise<number> {
-		return await this.sf.getFolloweesCount({authToken, user});
+		return await this.sf.getFolloweesCount({authToken: authToken.dto, user: user.dto});
 		// return FakeData.instance.getFolloweeCount(user.alias);
   };
 
@@ -79,7 +79,7 @@ export class FollowService extends Service {
     authToken: AuthToken,
     user: User
   ): Promise<number> {
-		return await this.sf.getFollowersCount({authToken, user});
+		return await this.sf.getFollowersCount({authToken: authToken.dto, user: user.dto});
 		// return FakeData.instance.getFollowerCount(user.alias);
   };
 }

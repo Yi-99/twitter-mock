@@ -6,6 +6,6 @@ export class PostStatusService extends Service {
     authToken: AuthToken,
     newStatus: Status
   ): Promise<void> {
-		await this.sf.postStatus({authToken, newStatus} as PostStatusRequest);
+		await this.sf.postStatus({authToken: authToken.dto, newStatus: newStatus.dto} as PostStatusRequest);
   };
 }
