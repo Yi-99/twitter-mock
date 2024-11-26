@@ -34,7 +34,6 @@ export class UserService extends Service {
     userImageBytes: Uint8Array,
     imageFileExtension: string
   ): Promise<[User, AuthToken]> {
-    // Not neded now, but will be needed when you make the request to the server in milestone 3
     const imageStringBase64: string =
       Buffer.from(userImageBytes).toString("base64");
 
@@ -62,7 +61,6 @@ export class UserService extends Service {
   };
 
 	public async logout (authToken: AuthToken): Promise<void> {
-    // Pause so we can see the logging out message. Delete when the call to the server is implemented.
     return await this.sf.logout({authToken} as LogoutRequest);
   };
 }
