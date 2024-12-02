@@ -1,6 +1,33 @@
-export interface Dao {
-	get(): any;
-	post(): any;
-	delete(): any;
-	update(): any;
+import {
+  DeleteCommand,
+  DynamoDBDocumentClient,
+  GetCommand,
+  PutCommand,
+  QueryCommand,
+  UpdateCommand,
+} from "@aws-sdk/lib-dynamodb";
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+
+export abstract class Dao {
+	public tableName = "Follows";
+  public indexName = "follows_index";
+  public follower_handle = "follower_handle";
+  public followee_handle = "followee_handle";
+  
+  private static client: DynamoDBDocumentClient;
+
+	protected constructor() {}
+
+	public static getInstance() {
+		if (!Dao.client) {
+			const client = new DynamoDBClient({ region: 'us-east-1' });
+			Dao.client = DynamoDBDocumentClient.from(client);
+		}
+		return Dao.client;
+	}
+
+	abstract get(): any;
+	abstract post(): any;
+	abstract delete(): any;
+	abstract update(): any;
 }

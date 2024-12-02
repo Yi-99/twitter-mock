@@ -5,7 +5,7 @@ import { StatusDao } from "./StatusDao";
 import { UserDao } from "./UserDao";
 
 export class DaoFactory {
-	public static getDao(type: string): Dao {
+	public static getDao(type: string): any {
 		if (type === 'user') {
 			return new UserDao();
 		}	else if (type === 's3') {
