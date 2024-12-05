@@ -3,12 +3,12 @@ import { FollowService } from "../../model/service/FollowService";
 
 export const handler = async (req: FollowRequest): Promise<FollowResponse> => {
 	const followService = new FollowService();
-	const [followerCount, followeeCount] = await followService.follow(req.authToken, req.userToFollow);
+	const [followerCount, followingCount] = await followService.follow(req.authToken, req.userToFollow);
 
 	return {
 		success: true,
 		message: null,
 		followerCount: followerCount,
-		followeeCount: followeeCount
+		followeeCount: followingCount
 	}
 }

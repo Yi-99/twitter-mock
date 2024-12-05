@@ -1,12 +1,37 @@
 import { AuthToken, AuthTokenDto, FakeData, User, UserDto } from "tweeter-shared";
 import { DaoFactory } from "../daos/DaoFactory";
 import { FollowDao } from "../daos/FollowDao";
+import { SessionDao } from "../daos/SessionDao";
+import { UserDao } from "../daos/UserDao";
 
 export class FollowService {
 	private dao: FollowDao;
-
+	private sessionDao: SessionDao;
+	private userDao: UserDao;
+	
 	constructor() {
 		this.dao = DaoFactory.getDao('follow');
+		this.sessionDao = DaoFactory.getDao('session');
+		this.userDao = DaoFactory.getDao('user');
+	}
+
+	async validateSession(token: string) {
+		const session = await this.sessionDao.getSession(token);
+
+		if (!session) {
+			throw new Error("Invalid auth token!");
+		}
+
+		const now = Math.floor(Date.now() / 1000);
+		console.log("now:", now);
+		console.log("session timestamp:", session.timestamp);
+		if (now > session.timestamp) {
+			throw new Error("Auth token expired!");
+		}
+
+		await this.sessionDao.updateSession(token, now + 3600);
+
+		return session;
 	}
 
 	public async loadMoreFollowers (
@@ -15,8 +40,21 @@ export class FollowService {
     pageSize: number,
     lastItem: UserDto | null
   ): Promise<[UserDto[], boolean]> {
-    // TODO: Replace with the result of calling server
-		return this.getFakeData(lastItem, pageSize, userAlias);
+		await this.validateSession(authToken);
+		const response = await this.dao.loadFollowers(lastItem?._alias, pageSize, userAlias);
+		const users: UserDto[] = response.items.map((item: any) => {
+			const nameParts = item.follower_name.split(" ");
+			const firstName = nameParts[0] || "";
+			const lastName = nameParts.slice(1).join(" ") || "";
+			return {
+				_alias: item.follower_handle,
+				_firstName: firstName,
+				_lastName: lastName,
+				_imageUrl: item.followerUrl,
+			}
+		});
+
+		return [users, response.hasNextPage];
   };
 
   public async loadMoreFollowees (
@@ -25,49 +63,59 @@ export class FollowService {
     pageSize: number,
     lastItem: UserDto | null
   ): Promise<[UserDto[], boolean]> {
-    // TODO: Replace with the result of calling server
-		return this.getFakeData(lastItem, pageSize, userAlias);
+		await this.validateSession(authToken);
+    const response = await this.dao.loadFollowees(lastItem?._alias, pageSize, userAlias);
+    const users: UserDto[] = response.items.map((item: any) => {
+			const nameParts = item.followee_name.split(" ");
+			const firstName = nameParts[0] || "";
+			const lastName = nameParts.slice(1).join(" ") || "";
+      return {
+        _alias: item.followee_handle,
+        _firstName: firstName,
+        _lastName: lastName,
+        _imageUrl: item.followeeUrl,
+      };
+    });
+
+    return [users, response.hasNextPage]
   };
 
 	public async unfollow (
     authToken: AuthTokenDto,
     userToUnfollow: UserDto
   ): Promise<[followerCount: number, followeeCount: number]> {
-    // Pause so we can see the unfollow message. Remove when connected to the server
-    await new Promise((f) => setTimeout(f, 2000));
+		const session = await this.validateSession(AuthToken.fromDto(authToken)!.token);
 
-    // TODO: Call the server
+		const user = await this.userDao.updateCount(session.alias, 'followingCount', -1);
+		await this.userDao.updateCount(userToUnfollow._alias, 'followerCount', -1);
 
-		const token = AuthToken.fromDto(authToken);
-		const user = User.fromDto(userToUnfollow);
+		await this.dao.unfollow(session.alias, User.fromDto(userToUnfollow)!);
 
-		if (token !== null && user !== null) {
-			const followerCount = await this.getFollowerCount(authToken, userToUnfollow);
-			const followeeCount = await this.getFolloweeCount(authToken, userToUnfollow);
-			return [followerCount, followeeCount];
-		}
-
-		return [0, 0];
+		const followerCount = await this.getFollowerCount(authToken, userToUnfollow);
+		const followingCount = await this.getFolloweeCount(authToken, userToUnfollow);
+		console.log("followerCount:", followerCount);
+		console.log("followingCount:", followingCount);
+		console.log("user count:", user?.followerCount, user?.followingCount);
+		return [followerCount, followingCount];
   };
 
 	public async follow (
     authToken: AuthTokenDto,
     userToFollow: UserDto
   ): Promise<[followerCount: number, followeeCount: number]> {
-    // Pause so we can see the follow message. Remove when connected to the server
-    await new Promise((f) => setTimeout(f, 2000));
+		const session = await this.validateSession(AuthToken.fromDto(authToken)!.token);
 
-    // TODO: Call the server
-		const token = AuthToken.fromDto(authToken);
-		const user = User.fromDto(userToFollow);
+		const user = await this.userDao.updateCount(session.alias, 'followingCount', 1);
+		await this.userDao.updateCount(userToFollow._alias, 'followerCount', 1);
 
-		if (token !== null && user !== null) {
-			const followerCount = await this.getFollowerCount(authToken, userToFollow);
-			const followeeCount = await this.getFolloweeCount(authToken, userToFollow);
-			return [followerCount, followeeCount];
-		}
+		await this.dao.follow(session.alias, User.fromDto(userToFollow)!);
 
-		return [0, 0];
+		const followerCount = await this.getFollowerCount(authToken, userToFollow);
+		const followingCount = await this.getFolloweeCount(authToken, userToFollow);
+		console.log("followerCount:", followerCount);
+		console.log("followingCount:", followingCount);
+		console.log("user count:", user?.followerCount, user?.followingCount);
+		return [followerCount, followingCount];
   };
 
 	public async getIsFollowerStatus (
@@ -83,21 +131,25 @@ export class FollowService {
     authToken: AuthTokenDto,
     user: UserDto
   ): Promise<number> {
-    // TODO: Replace with the result of calling server
-    return FakeData.instance.getFolloweeCount(user._alias);
+    const response = await this.userDao.getUser(user._alias);
+
+		if (!response) {
+			throw new Error("Invalid user");
+		} else {
+			return response.followerCount;
+		}
   };
 
   public async getFollowerCount (
     authToken: AuthTokenDto,
     user: UserDto
   ): Promise<number> {
-    // TODO: Replace with the result of calling server
-    return FakeData.instance.getFollowerCount(user._alias);
-  };
+		const response = await this.userDao.getUser(user._alias);
 
-  private async getFakeData(lastItem: UserDto | null, pageSize: number, userAlias: string): Promise<[UserDto[], boolean]> {
-    const [items, hasMore] = FakeData.instance.getPageOfUsers(User.fromDto(lastItem), pageSize, userAlias);
-    const dtos = items.map((followee) => followee.dto);
-    return [dtos, hasMore];
-  }
+		if (!response) {
+			throw new Error("Invalid user");
+		} else {
+			return response.followingCount;
+		}
+  };
 }

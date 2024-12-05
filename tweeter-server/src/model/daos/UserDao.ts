@@ -1,12 +1,17 @@
-import { GetCommand, PutCommand } from "@aws-sdk/lib-dynamodb";
+import { DynamoDBDocumentClient, GetCommand, PutCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { Dao } from "./Dao";
 import { AuthTokenDto, User } from "tweeter-shared";
+import { compare } from 'bcryptjs';
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 
 export class UserDao extends Dao {
 	constructor() {
 		super();
 		this.tableName = "users"
 	}
+
+	readonly client = DynamoDBDocumentClient.from(new DynamoDBClient({ region: "us-east-1" }));
+
 	get() {
 		throw new Error("Method not implemented.");
 	}
@@ -24,24 +29,21 @@ export class UserDao extends Dao {
 		const params = {
 			TableName: this.tableName,
 			Key: {
-				[this.follower_handle]: alias,
-				[this.followee_handle]: password,
+				"alias": alias
 			}
 		}
 
 		const response = await Dao.getInstance().send(new GetCommand(params));
 
 		if (response.Item != undefined) {
-			const user = new User(
-				response.Item.firstName,
-				response.Item.lastName,
-				response.Item.alias,
-				response.Item.imageUrl
-			)
-
-			return user;
+			// check if the password is correct
+			if (await compare(password, response.Item.password)) {
+				return response.Item as User;
+			} else {
+				throw new Error("Incorrect password!");
+			}
 		} else {
-			throw new Error("Unable to login")
+			throw new Error("No user with that username!");
 		}
 	}
 
@@ -55,11 +57,13 @@ export class UserDao extends Dao {
 		const params = {
 			TableName: this.tableName,
 			Item: {
-				alias: alias,
-				password: password,
-				firstName: firstName,
-				lastName: lastName,
-				imageUrl: imageUrl
+				"alias": alias,
+				"password": password,
+				"firstName": firstName,
+				"lastName": lastName,
+				"imageUrl": imageUrl,
+				"followerCount": 0,
+				"followingCount": 0
 			}
 		}
 
@@ -83,26 +87,36 @@ export class UserDao extends Dao {
 		}
 	}
 
-	async getUser(authToken: AuthTokenDto, alias: string) {
-		if (!authToken) {
-			throw new Error('Invalid auth token: Action not authorized!');
-		}
-
+	async getUser(alias: string) {
 		const params = {
 			TableName: this.tableName,
 			Key: {
-				[this.follower_handle]: alias
+				"alias": alias,
 			}
 		}
 
-		const response = await Dao.getInstance().send(new GetCommand(params));
+		const response = await this.client.send(new GetCommand(params));
 		if (response.Item != undefined) {
-			return new User(
-				response.Item.firstName,
-				response.Item.lastName,
-				response.Item.alias,
-				response.Item.imageUrl
-			)
+			return response.Item;
 		}
+	}
+
+	async updateCount(val: string, attributeName: string, num: number) {
+		const params: any = {
+			TableName: this.tableName,
+			Key: {
+				alias: val
+			},
+			UpdateExpression: `SET ${attributeName} = if_not_exists(${attributeName}, :start) + :change`,
+			ExpressionAttributeValues: {
+				":start": 0, 
+				":change": num, 
+			},
+			ReturnValues: "ALL_NEW",
+		}
+
+		const response = await Dao.getInstance().send(new UpdateCommand(params));
+		console.log("UpdateCount:", response);
+		return response.Attributes;
 	}
 }

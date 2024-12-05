@@ -1,10 +1,5 @@
 import {
-  DeleteCommand,
   DynamoDBDocumentClient,
-  GetCommand,
-  PutCommand,
-  QueryCommand,
-  UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 
@@ -18,10 +13,10 @@ export abstract class Dao {
 
 	protected constructor() {}
 
+	// Singleton pattern
 	public static getInstance() {
 		if (!Dao.client) {
-			const client = new DynamoDBClient({ region: 'us-east-1' });
-			Dao.client = DynamoDBDocumentClient.from(client);
+			Dao.client = DynamoDBDocumentClient.from(new DynamoDBClient({ region: 'us-east-1' }));
 		}
 		return Dao.client;
 	}

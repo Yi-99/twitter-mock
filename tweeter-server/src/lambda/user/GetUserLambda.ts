@@ -3,7 +3,7 @@ import { UserService } from "../../model/service/UserService";
 
 export const handler = async (req: GetUserRequest): Promise<GetUserResponse> => {
 	const userService = new UserService();
-	const user = await userService.getUser(req.authToken, req.userAlias);
+	const user = await userService.getUser(req.userAlias);
 
 	if (!user) {
 		return {
