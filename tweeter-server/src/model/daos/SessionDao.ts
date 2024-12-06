@@ -1,14 +1,21 @@
-import { DynamoDBDocumentClient, GetCommand, PutCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
+import { DeleteCommand, DynamoDBDocumentClient, GetCommand, PutCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { Dao } from "./Dao";
 import { v4 as uuid4 } from "uuid";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { AuthToken } from "tweeter-shared";
+import { SessionDaoInterface } from "./SessionDaoInterface";
 
-export class SessionDao extends Dao {
+export class SessionDao implements SessionDaoInterface {
+	readonly tableName: string;
+	readonly indexName: string;
+	readonly follower_handle: string;
+	readonly followee_handle: string;
+
 	constructor() {
-		super();
-		// this.tableName = "session";
-		this.tableName = "sessions";
+		this.tableName = 'session';
+		this.indexName = '';
+		this.follower_handle = '';
+		this.followee_handle = '';
 	}
 	
 	readonly client = DynamoDBDocumentClient.from(new DynamoDBClient({ region: "us-east-1" }));
@@ -27,6 +34,7 @@ export class SessionDao extends Dao {
 	}
 
 	async getSession(authToken: string) {
+		console.log("getSEssion:", authToken);
 		const params = {
 			TableName: this.tableName,
 			Key: {
@@ -64,10 +72,27 @@ export class SessionDao extends Dao {
 		}
 	}
 
-	async createSession(alias: string) {
+	async deleteSession(authToken: string) {
+		const params = {
+			TableName: this.tableName,
+			Key: {
+				"auth_token": authToken
+			}
+		}
+
+		try {
+			const response = await Dao.getInstance().send(new DeleteCommand(params));
+			console.log("session successfully deleted!", authToken);
+			return response.$metadata.httpStatusCode === 200;
+		} catch (error) {
+			throw new Error("Failed to delete session with: " + error);
+		}
+	}
+
+	async createSession(alias: string, authToken: string, timestamp: number) {
 		const session = {
-			"auth_token": uuid4(),
-			"timestamp": Math.floor(Date.now() / 1000) + 3600,
+			"auth_token": authToken,
+			"timestamp": timestamp,
 			"alias": alias
 		}
 

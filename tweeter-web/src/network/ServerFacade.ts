@@ -44,15 +44,17 @@ export class ServerFacade {
     >(request, "/followee");
 
     // Convert the UserDto array returned by ClientCommunicator to a User array
+		console.log("getMoreFollowees:", response.items);
     const items: User[] | null =
       response.success && response.items
         ? response.items.map((dto) => User.fromDto(dto) as User)
         : null;
 
+		console.log("items:", items);
     // Handle errors
     if (response.success) {
       if (items == null) {
-        throw new Error(`No followees found`);
+        return [[], false];
       } else {
         return [items, response.hasMore];
       }
@@ -77,9 +79,10 @@ export class ServerFacade {
 				: null;
 
 		// Handle errors
+		console.log("items:", items);
 		if (response.success) {
 			if (items == null) {
-				throw new Error('No followers found');
+				return [[], false];
 			} else {
 				return [items, response.hasMore];
 			}
@@ -198,7 +201,7 @@ export class ServerFacade {
 
 		if (response.success) {
 			if (items == null) {
-				throw new Error('No feed items found');
+				return [[], false];
 			} else {
 				return [items, response.hasMore];
 			}
@@ -223,7 +226,7 @@ export class ServerFacade {
 
 		if (response.success) {
 			if (items == null) {
-				throw new Error('No feed items found');
+				return [[], false];
 			} else {
 				return [items, response.hasMore];
 			}
@@ -240,12 +243,13 @@ export class ServerFacade {
 			LoginRequest,
 			LoginResponse
 		>(request, "/login");
+		console.log("Login response:", response);
 
 		const user: UserDto | null = response.user;
 		const authToken: AuthTokenDto | null = response.authToken;
 
 		if (response.success) {
-			if (user == null) {
+			if (user == null && authToken == null) {
 				throw new Error('No user found');
 			} else if (authToken == null) {
 				throw new Error('Invalid Auth Token');
@@ -281,6 +285,7 @@ export class ServerFacade {
 		>(request, "/register");
 
 		const user: UserDto | null = response.user;
+		console.log("register user:", user);
 		const authToken: AuthTokenDto | null = response.authToken;
 
 		if (response.success) {

@@ -3,16 +3,18 @@ import { Dao } from "./Dao";
 import { DynamoDBClient, QueryCommand } from "@aws-sdk/client-dynamodb";
 import { DeleteCommand, DynamoDBDocumentClient, GetCommand, PutCommand } from "@aws-sdk/lib-dynamodb";
 
-interface Datapage<T> {
+export interface Datapage<T> {
 	items: T[];
 	hasNextPage: boolean;
 }
 
-interface Follower {
+export interface Follower {
 	follower_handle: string;
 	followee_handle: string;
 	follower_name: string;
 	followee_name: string;
+	followerUrl: string;
+	followeeUrl: string;
 }
 
 export class FollowDao extends Dao {
@@ -117,12 +119,12 @@ export class FollowDao extends Dao {
 		return response.$metadata.httpStatusCode === 200;
 	}
 
-	async getIsFollowerStatus(user: User, selectedUser: User) {
+	async getIsFollowerStatus(userAlias: string | undefined, selectedUserAlias: string | undefined) {
 		const params = {
 			TableName: this.tableName,
 			Key: {
-				[this.follower_handle]: user.alias,
-				[this.followee_handle]: selectedUser.alias,
+				[this.follower_handle]: userAlias,
+				[this.followee_handle]: selectedUserAlias,
 			},
 		};
 
@@ -152,5 +154,35 @@ export class FollowDao extends Dao {
 
 		const response = await Dao.getInstance().send(new GetCommand(params));
 		return response.Item?.followerCount;
+	}
+
+	async getFollowers(alias: string) {
+		console.log("getFollowers");
+		const params = {
+			TableName: this.tableName,
+			KeyConditionExpression: `follower_handle = :handle`,
+			ExpressionAttributeValues: {
+				":handle": { "S": alias },
+			},
+			ProjectionExpression: "followee_handle"
+		};
+
+		try {
+			const response = await Dao.getInstance().send(new QueryCommand(params));
+			if (!response.Items || response.Items.length === 0) {
+				console.log(`No followers found for alias: ${alias}`);
+				return [];
+			}
+
+			if (!response.Items) {
+				return [];
+			}
+
+			const followers = response.Items.map((item: any) => item["followee_handle"]);
+			return followers;
+		} catch (error) {
+			console.error("Error fetching receivers for follower:", error);
+			throw new Error("Unable to fetch followers");
+		}
 	}
 }

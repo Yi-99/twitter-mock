@@ -8,9 +8,15 @@ export class FollowService extends Service {
     pageSize: number,
     lastItem: User | null
   ): Promise<[User[], boolean]> {
-		const [users, hasMore] = await this.sf.getMoreFollowers({token: authToken.token, userAlias, pageSize, lastItem: lastItem!.dto});
-		users.forEach((user) => user);
-		return [users, hasMore];
+		if (lastItem != null) {
+			const [users, hasMore] = await this.sf.getMoreFollowers({token: authToken.token, userAlias, pageSize, lastItem: lastItem.dto});
+			users.forEach((user) => user);
+			return [users, hasMore];
+		} else {
+			const [users, hasMore] = await this.sf.getMoreFollowers({token: authToken.token, userAlias, pageSize, lastItem: null});
+			users.forEach((user) => user);
+			return [users, hasMore];
+		}
   };
 
   public async loadMoreFollowees (
@@ -19,9 +25,15 @@ export class FollowService extends Service {
     pageSize: number,
     lastItem: User | null
   ): Promise<[User[], boolean]> {
-		const [users, hasMore] = await this.sf.getMoreFollowees({token: authToken.token, userAlias, pageSize, lastItem: lastItem!.dto});
-		users.forEach((user) => user);
-		return [users, hasMore];
+		if (lastItem != null) {
+			const [users, hasMore] = await this.sf.getMoreFollowees({token: authToken.token, userAlias, pageSize, lastItem: lastItem.dto});
+			users.forEach((user) => user);
+			return [users, hasMore];
+		} else {
+			const [users, hasMore] = await this.sf.getMoreFollowees({token: authToken.token, userAlias, pageSize, lastItem: null});
+			users.forEach((user) => user);
+			return [users, hasMore];
+		}
   };
 
 	public async unfollow (

@@ -9,6 +9,7 @@ export class LoginPresenter extends AuthenticationPresenter {
       this.isLoading = true;
 
       const [user, authToken] = await this.service.login(alias, password);
+			console.log("Login presenter:", user, authToken);
 
       this.view.updateUserInfo(user, user, authToken, rememberMe);
 

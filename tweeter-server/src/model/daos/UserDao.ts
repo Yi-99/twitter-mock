@@ -1,13 +1,21 @@
 import { DynamoDBDocumentClient, GetCommand, PutCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { Dao } from "./Dao";
-import { AuthTokenDto, User } from "tweeter-shared";
+import { User } from "tweeter-shared";
 import { compare } from 'bcryptjs';
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { UserDaoInterface } from "./UserDaoInterface";
 
-export class UserDao extends Dao {
+export class UserDao implements UserDaoInterface {
+	public tableName: string;
+	public indexName: string;
+	public follower_handle: string;
+	public followee_handle: string;
+
 	constructor() {
-		super();
-		this.tableName = "users"
+		this.tableName = "users";
+		this.indexName = "";
+		this.follower_handle = "alias";
+		this.followee_handle = "";
 	}
 
 	readonly client = DynamoDBDocumentClient.from(new DynamoDBClient({ region: "us-east-1" }));
@@ -38,7 +46,13 @@ export class UserDao extends Dao {
 		if (response.Item != undefined) {
 			// check if the password is correct
 			if (await compare(password, response.Item.password)) {
-				return response.Item as User;
+				console.log("user logged in:", response.Item as User);
+				return new User(
+					response.Item.firstName,
+					response.Item.lastName,
+					response.Item.alias,
+					response.Item.imageUrl
+				);
 			} else {
 				throw new Error("Incorrect password!");
 			}
@@ -72,9 +86,9 @@ export class UserDao extends Dao {
 
 			if (response.$metadata.httpStatusCode === 200) {
 				const user = new User(
-					alias,
 					firstName,
 					lastName,
+					alias,
 					imageUrl
 				)
 

@@ -62,6 +62,7 @@ const FeedScroller = (props: Props) => {
 	const [presenter] = useState(props.presenterGenerator(listener));
 
   const loadMoreItems = async () => {
+		console.log("Feed scroller load more items:", authToken!);
 		presenter.loadMoreItems(authToken!, displayedUser!);
 		setChangedDisplayedUser(false);
   };

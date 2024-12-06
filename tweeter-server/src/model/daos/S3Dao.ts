@@ -6,14 +6,23 @@ import {
 	GetObjectCommand,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { S3DaoInterface } from "./S3DaoInterface";
 
-export class S3Dao extends Dao {
+export class S3Dao implements S3DaoInterface {
 	private s3Client: S3Client;
+	public tableName: string;
+	public indexName: string;
+	public follower_handle: string;
+	public followee_handle: string;
 
 	constructor() {
-		super();
 		this.s3Client = new S3Client({ region: "us-east-1" });
+		this.tableName = 's3';
+		this.indexName = '';
+		this.follower_handle = '';
+		this.followee_handle = '';
 	}
+
 	get() {
 		throw new Error("Method not implemented.");
 	}
@@ -40,7 +49,7 @@ export class S3Dao extends Dao {
 				Key: key,
 			}
 
-			const url = await getSignedUrl(this.s3Client, new GetObjectCommand(getParams), { expiresIn: 3600 });
+			const url = await getSignedUrl(this.s3Client, new GetObjectCommand(getParams), { expiresIn: 3600 * 24 }); // 24 hours
 			return url;
 		} catch (error) {
 			throw new Error("S3 upload failed with: " + error);

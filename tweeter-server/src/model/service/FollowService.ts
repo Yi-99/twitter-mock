@@ -42,15 +42,18 @@ export class FollowService {
   ): Promise<[UserDto[], boolean]> {
 		await this.validateSession(authToken);
 		const response = await this.dao.loadFollowers(lastItem?._alias, pageSize, userAlias);
+		if (response.items.length === 0) {
+			return [[], false];
+		}
 		const users: UserDto[] = response.items.map((item: any) => {
-			const nameParts = item.follower_name.split(" ");
+			const nameParts = item.followee_name.S.split(" ");
 			const firstName = nameParts[0] || "";
 			const lastName = nameParts.slice(1).join(" ") || "";
 			return {
-				_alias: item.follower_handle,
+				_alias: item.followee_handle.S,
 				_firstName: firstName,
 				_lastName: lastName,
-				_imageUrl: item.followerUrl,
+				_imageUrl: item.followeeUrl.S,
 			}
 		});
 
@@ -65,15 +68,18 @@ export class FollowService {
   ): Promise<[UserDto[], boolean]> {
 		await this.validateSession(authToken);
     const response = await this.dao.loadFollowees(lastItem?._alias, pageSize, userAlias);
+		if (response.items.length === 0) {
+			return [[], false];
+		}
     const users: UserDto[] = response.items.map((item: any) => {
-			const nameParts = item.followee_name.split(" ");
+			const nameParts = item.follower_name.S.split(" ");
 			const firstName = nameParts[0] || "";
 			const lastName = nameParts.slice(1).join(" ") || "";
       return {
-        _alias: item.followee_handle,
+        _alias: item.follower_handle.S,
         _firstName: firstName,
         _lastName: lastName,
-        _imageUrl: item.followeeUrl,
+        _imageUrl: item.followerUrl.S,
       };
     });
 
@@ -123,14 +129,22 @@ export class FollowService {
     user: UserDto,
     selectedUser: UserDto
   ): Promise<boolean> {
-    // TODO: Replace with the result of calling server
-    return FakeData.instance.isFollower();
+		await this.validateSession(AuthToken.fromDto(authToken)!.token);
+
+		const response = await this.dao.getIsFollowerStatus(user?._alias, selectedUser?._alias);
+
+		if (response) {
+			return true;
+		} else {
+			return false;
+		}
   };
 
 	public async getFolloweeCount (
     authToken: AuthTokenDto,
     user: UserDto
   ): Promise<number> {
+		console.log("user:", user);
     const response = await this.userDao.getUser(user._alias);
 
 		if (!response) {
@@ -144,6 +158,7 @@ export class FollowService {
     authToken: AuthTokenDto,
     user: UserDto
   ): Promise<number> {
+		console.log("user:", user);
 		const response = await this.userDao.getUser(user._alias);
 
 		if (!response) {

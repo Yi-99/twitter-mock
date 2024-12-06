@@ -62,7 +62,6 @@ export class RegisterPresenter extends AuthenticationPresenter {
         );
 
         this.view.setImageBytes(bytes);
-				console.log("Bytes:", bytes);
       };
       reader.readAsDataURL(file);
 

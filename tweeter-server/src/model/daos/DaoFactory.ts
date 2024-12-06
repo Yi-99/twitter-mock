@@ -1,5 +1,4 @@
 import { FollowDao } from "./FollowDao";
-import { PostStatusDao } from "./PostStatusDao";
 import { S3Dao } from "./S3Dao";
 import { SessionDao } from "./SessionDao";
 import { StatusDao } from "./StatusDao";
@@ -13,8 +12,6 @@ export class DaoFactory {
 			return new S3Dao();
 		} else if (type === 'status') {
 			return new StatusDao();
-		} else if (type === 'postStatus') {
-			return new PostStatusDao();
 		} else if (type === 'session') {
 			return new SessionDao();
 		} else if (type === 'follow') {

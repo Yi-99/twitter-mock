@@ -29,8 +29,10 @@ export class UserService {
 
 		const authToken = new AuthToken(
 			uuidv4(),
-			new Date().getTime() + 3600 * 1000
+			Math.floor((new Date().getTime() + 3600 * 1000) / 1000)
 		)
+
+		await this.sessionDao.createSession(alias, authToken.token, authToken.timestamp);
 
     return [user.dto, authToken.dto];
   };
@@ -64,7 +66,12 @@ export class UserService {
 			imageUrl
 		)
 
-		const authToken = await this.sessionDao.createSession(alias);
+		const authToken = new AuthToken(
+			uuidv4(),
+			Math.floor((new Date().getTime() + 3600 * 1000) / 1000)
+		)
+
+		await this.sessionDao.createSession(alias, authToken.token, authToken.timestamp);
 
     if (response === null) {
       throw new Error("Invalid registration");
@@ -85,8 +92,20 @@ export class UserService {
 		return user.dto;
   };
 
-	public async logout (authToken: AuthTokenDto): Promise<void> {
-    // Pause so we can see the logging out message. Delete when the call to the server is implemented.
-    await new Promise((res) => setTimeout(res, 1000));
+	public async logout (authToken: string): Promise<void> {
+		console.log("authToken in logout:", authToken);
+    const session = await this.sessionDao.getSession(authToken);
+
+		if (session == undefined) {
+			throw new Error("Token not found!");
+		}
+
+		try {
+			await this.sessionDao.deleteSession(session.auth_token);
+			console.log("user logged out successfully!");
+			return;
+		} catch (error) {
+			throw new Error("Failed to log out user: " + error);
+		}
   };
 }

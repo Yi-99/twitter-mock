@@ -16,6 +16,7 @@ export class UserService extends Service {
     password: string
   ): Promise<[User, AuthToken]> {
 		const [user, authToken] = await this.sf.login({alias, password} as LoginRequest);
+		console.log("login:", user, authToken);
 
 		if (user === null) {
 			throw new Error("Invalid alias or password");
@@ -61,6 +62,6 @@ export class UserService extends Service {
   };
 
 	public async logout (authToken: AuthToken): Promise<void> {
-    return await this.sf.logout({authToken} as LogoutRequest);
+    return await this.sf.logout({authToken: authToken.token} as LogoutRequest);
   };
 }
